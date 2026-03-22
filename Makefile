@@ -1,6 +1,9 @@
-.PHONY: up down logs build test test-coverage lint clean
+.PHONY: up build down logs run-gateway run-orchestrator test test-coverage lint clean
 
 up:
+	docker compose up
+
+build:
 	docker compose up --build
 
 down:
@@ -9,8 +12,11 @@ down:
 logs:
 	docker compose logs -f
 
-build:
-	docker compose build
+run-gateway:
+	export $$(cat .env | xargs) && cd gateway && go run ./cmd/server
+
+run-orchestrator:
+	export $$(cat .env | xargs) && cd orchestrator && go run ./cmd/server
 
 test:
 	cd gateway && go test -race ./...
