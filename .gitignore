@@ -1,0 +1,5 @@
+.env
+gateway/server
+gateway/coverage.out
+orchestrator/server
+orchestrator/coverage.out

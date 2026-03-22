@@ -1,0 +1,36 @@
+services:
+  gateway:
+    build: ./gateway
+    ports:
+      - "8080:8080"
+    environment:
+      - PORT=8080
+      - ORCHESTRATOR_URL=http://orchestrator:8081
+      - OTEL_EXPORTER_OTLP_ENDPOINT=otel-collector:4317
+    depends_on:
+      - orchestrator
+      - otel-collector
+
+  orchestrator:
+    build: ./orchestrator
+    environment:
+      - PORT=8081
+      - WEATHERAPI_KEY=${WEATHERAPI_KEY}
+      - VIACEP_BASE_URL=https://viacep.com.br
+      - WEATHERAPI_BASE_URL=https://api.weatherapi.com
+      - OTEL_EXPORTER_OTLP_ENDPOINT=otel-collector:4317
+    depends_on:
+      - otel-collector
+
+  otel-collector:
+    image: otel/opentelemetry-collector-contrib:latest
+    volumes:
+      - ./otel-collector-config.yaml:/etc/otel-collector-config.yaml
+    command: ["--config=/etc/otel-collector-config.yaml"]
+    depends_on:
+      - zipkin
+
+  zipkin:
+    image: openzipkin/zipkin
+    ports:
+      - "9412:9411"
